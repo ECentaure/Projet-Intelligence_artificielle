@@ -5,7 +5,6 @@ Created on Mon Jan 21 18:00:28 2019
 @author: 3701195
 """
 # coding: utf-8
-from tools import *
 from actions import *
 from superstate import *
 from soccersimulator import Strategy, SoccerAction, Vector2D, SoccerTeam, Simulation, show_simu,settings
