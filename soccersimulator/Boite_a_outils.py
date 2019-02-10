@@ -75,32 +75,6 @@ class fonctions(object):
 		dist = math.sqrt(math.pow((cible.x - state.player_state(id_team, id_player).position.x),2) + 
                      math.pow((cible.y - state.player_state(id_team, id_player).position.y),2))
 		return dist 
- 
-    
-	def distanceBut(state, id_team, id_player):
-    
-		s = SuperState(state, id_team,id_player)
-		dist = math.sqrt(math.pow((s.goal.x - state.player_state(id_team, id_player).position.x),2) +  math.pow((s.goal.y - state.player_state(id_team, id_player).position.y),2))
-		return dist    
-    
-	def deplaceVers(A, id_joueur):
-		player = state.player_state(id_team, id_player).position
-		return SoccerAction(acceleration = A - player)
-    
-	def shooterVersBut(goal,id_team, id_player): 
-		player = state.player_state(id_team, id_player).position
-		return SoccerAction(shoot = goal - player)    
-
-	def advProchePos(id_team):
-		L_adv = [state.player_state(it,ip).position for (it, ip)in state.player if it != id_team]
-		return min(L_adv)
-
-	def gogetter(state):
-		if state.player.distance( state.ball ) < PLAYER_RADIUS + BALL_RADIUS :
-			return SoccerAction (shoot = state.goal - state.player )
-		else :
-			return SoccerAction (acceleration = state.ball - state.player )  
-    
     
     def aller_courrir(self,p):
         """if (self.posi_ball().x==settings.GAME_WIDTH/2) and (self.posi_ball().y==settings.GAME_HEIGHT/2):
