@@ -83,12 +83,12 @@ class Gardien_v2(Strategy):
         w = position_ball - new_position_joueur
         if( id_team == 2 and w.norm < 5 or (state.ball.position+5*state.ball.vitesse).x>110):
             tir =(but1-position_ball)
-            tir.angle -= pi/4
+            tir.angle -= 0.7853
             return SoccerAction(acceleration = (position_ball-position_joueur)*maxPlayerAcceleration,shoot=tir*3)
       
         if( id_team == 1 and w.norm < 5 or state.ball.position.x<40):
             tir=(but2-position_ball)
-            tir.angle -= pi/4
+            tir.angle -= 0.7853
             return SoccerAction(acceleration = (position_ball-position_joueur)*maxPlayerAcceleration,shoot=tir*3)
         else:
             return SoccerAction(acceleration = new_position_joueur)
