@@ -14,8 +14,8 @@ def get_team(nb_players ):
     if nb_players == 1:
         team.add(" Striker " , FonceurStrategy())
     if nb_players == 2:
-        team.add(" Fonceur " , FonceurStrategy())
-        team.add(" Random " ,RandomStrategy())
+        team.add(" Gardien " , Gardien_v2())
+        team.add(" Attaquant " ,Attaquant_v2())
         return team
     
 if __name__ == "__main__":
