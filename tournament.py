@@ -16,7 +16,7 @@ def get_team(nb_players ):
     if nb_players == 2:
         team.add(" Gardien " , Gardien_v2())
         team.add(" Attaquant " ,Attaquant_v2())
-        return team
+    return team
     
 if __name__ == "__main__":
     from soccersimulator import Simulation , show_simu
@@ -25,3 +25,4 @@ if __name__ == "__main__":
     team2 = get_team(2)
     # Create a match
     simu = Simulation(team1 , team2 )
+    show_simu(simu)
