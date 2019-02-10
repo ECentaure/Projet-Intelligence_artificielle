@@ -70,11 +70,6 @@ class fonctions(object):
     def tirer_ou_pas(self):
         return self.distance_j_b() < PLAYER_RADIUS + BALL_RADIUS
     
-    def distance(state, id_team, id_player, cible):
-		dist = math.sqrt(math.pow((cible.x - state.player_state(id_team, id_player).position.x),2) + 
-                     math.pow((cible.y - state.player_state(id_team, id_player).position.y),2))
-		return dist 
-    
     def aller_courrir(self,p):
         """if (self.posi_ball().x==settings.GAME_WIDTH/2) and (self.posi_ball().y==settings.GAME_HEIGHT/2):
             return SoccerAction(Vector2D(),Vector2D())
