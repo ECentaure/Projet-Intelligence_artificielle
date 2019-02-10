@@ -1,7 +1,6 @@
 from soccersimulator import Strategy, SoccerAction, Vector2D
 from soccersimulator import settings
 import math
-from superstate import *
 
 GAME_WIDTH = 150
 GAME_HEIGHT = 90
