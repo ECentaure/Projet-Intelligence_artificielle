@@ -20,6 +20,8 @@ class SuperState ( object ):
     def player ( self ):
         return self . state . player_state ( self . id_team , self . id_player ). position
     @property
+    def goalAdv ( self ):
+        return Vector2D((2 - self.id_team )*settings.GAME_WIDTH , settings.GAME_HEIGHT / 2)
+    @property
     def goal ( self ):
         return Vector2D((self.id_team - 1)*settings.GAME_WIDTH , settings.GAME_HEIGHT / 2)
-    
