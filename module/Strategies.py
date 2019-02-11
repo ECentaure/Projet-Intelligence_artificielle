@@ -8,7 +8,7 @@ Created on Mon Jan 21 18:00:28 2019
 #from actions import *
 #from superstate import *
 from soccersimulator import Strategy, SoccerAction, Vector2D, SoccerTeam, Simulation, show_simu,settings
-from Boite_a_outils import *
+from module import *
 import math
 
 
@@ -27,7 +27,7 @@ class FonceurStrategy(Strategy):
 
     def compute_strategy(self, state, id_team, id_player):
         s = SuperState(state, id_team, id_player)
-        dist = distance(state, id_team, id_player, s.ball)
+        dist = s.distance(s.ball)
              
         if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
             return SoccerAction(shoot = s.goalAdv - s.player)
@@ -41,7 +41,7 @@ class GardienStrategy(Strategy):
     def compute_strategy(self, state, id_team, id_player):
         
         s = SuperState(state, id_team, id_player)
-        dist = distance(state, id_team, id_player, s.ball)
+        dist = s.distance(s.ball)
         
         if(dist < 50 and distance(state, id_team, id_player, s.goal) < 10):
             if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
@@ -57,13 +57,13 @@ class DefenseurStrategy(Strategy):
         Strategy.__init__(self, "Defenseur")
         
     def compute_strategy(self, state, id_team, id_player):
-        s = SuperState(state, id_team, id_player)
-        dist = distance(state, id_team, id_player, s.ball)
+        #s = SuperState(state, id_team, id_player)
+        dist = s.distance(s.ball)
         if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
             return SoccerAction(shoot = s.goal - s.player)
         else:
             return SoccerAction(acceleration = s.ball - s.player)
-     
+   
 class Gardien_v2(Strategy):
     """_/!\_ adapter pour du deux contre deux"""
     def __init__(self):
@@ -99,9 +99,9 @@ class Attaquant_v2(Strategy):
         Strategy.__init__(self,"Attaquantv_2")
         
     def compute_strategy(self,state,id_team,id_player):
-        fct = fonctions(state,id_team,id_player)
+        fct = SuperState(state,id_team,id_player)
         ball = state.ball.position
-        but = fct.posi_but()
+        but = fct.goalAdv
         if (fct.tirer_ou_pas()):
             return fct.aller_courrir_marcher(ball + 5*state.ball.vitesse) + fct.shoot_but(but)
         else:
@@ -114,13 +114,12 @@ team1 = SoccerTeam(name="Team 1")
 team2 = SoccerTeam(name="Team 2")
 
 # Add players
-team1.add("kiwi", RandomStrategy())  # Random strategy
-team1.add("bobby", GardienStrategy()) 
+team1.add("kiwi", Attaquant_v2())  # Random strategy
 
-team2.add("Fonceur", FonceurStrategy())   # Static strategy
+team2.add("Fonceur", Attaquant_v2())   # Static strategy
 #team2.add("nemo", FonceurStrategy()) 
 
-team2.add("jimmy", GardienStrategy()) 
+team2.add("jimmy", Gardien_v2()) 
 
 # Create a match
 simu = Simulation(team1, team2)

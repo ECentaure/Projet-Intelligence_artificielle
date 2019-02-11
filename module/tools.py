@@ -18,8 +18,7 @@ maxPlayerSpeed = 1.
 maxPlayerAcceleration = 0.2
 maxBallAcceleration = 5 
 
-from tools import *
-from soccersimulator import Strategy, SoccerAction, Vector2D, SoccerTeam, Simulation, show_simu,settings
+from soccersimulator import *
 from math import *
 
 class SuperState ( object ):
@@ -30,9 +29,9 @@ class SuperState ( object ):
         
     @property
     def ball ( self ):
-        return self . state . ball . position
+        return self.state.ball.position
     @property
-    def posi_joueur(self):
+    def player(self):
         return self.state.player_state(self.id_team, self.id_player).position
     @property
     def goalAdv ( self ):
@@ -50,14 +49,14 @@ class SuperState ( object ):
     def adv_proche(state, id_team, id_player):
         return min(liste_joueur(state, id_team_adv(), id_player))
 
-    def distance(state, id_team, id_player, cible):
-        dist = math.sqrt(math.pow((cible.x - state.player_state(id_team, id_player).position.x),2) + 
-                     math.pow((cible.y - state.player_state(id_team, id_player).position.y),2))
+    def distance(self, cible):
+        dist = math.sqrt(math.pow((cible.x - self.state.player_state(self.id_team, self.id_player).position.x),2) + 
+                     math.pow((cible.y - self.state.player_state(self.id_team, self.id_player).position.y),2))
         return dist 
  
     
     def passe(self):
-        return SoccerAction(acceleration = Vector2D(), shoot = (self.plus_proche_ami()-self.posi_joueur()))
+        return SoccerAction(acceleration = Vector2D(), shoot = (self.plus_proche_ami()-self.player))
     
     def anticiper_ball(self):
         return self.posi_ball() + self.state.ball.vitesse.normalize()
@@ -95,10 +94,10 @@ class SuperState ( object ):
         
     def aller_vers(self, vecteur):
         """ renvoie le vecteur déplacement entre le joueur et le point x, y présent dans le champ vecteur"""
-        return vecteur-self.posi_joueur()
+        return vecteur-self.player
     
     def distance_j_vect(self,vecteur):
-        return vecteur.distance(self.posi_joueur())
+        return vecteur.distance(self.player)
         
     def Immobile(self):
         return SoccerAction(Vector2D(0,0), Vector2D(0,0))  
@@ -106,9 +105,14 @@ class SuperState ( object ):
     def distance_joueur_but(self):
         if (self.id_team == 1):
             but = Vector2D( 0, GAME_HEIGHT/2 )
-        but = Vector2D( GAME_WIDTH, GAME_HEIGHT/2)
+        else:
+            but = Vector2D( GAME_WIDTH, GAME_HEIGHT/2)
         
-        return self.posi_joueur().distance(but)
+        return self.player.distance(but)
+    
+    
+    def distance_j_b(self):
+        return self.player.distance(self.ball)
      
         
     def tirer_ou_pas(self):
@@ -118,10 +122,10 @@ class SuperState ( object ):
         """if (self.posi_ball().x==settings.GAME_WIDTH/2) and (self.posi_ball().y==settings.GAME_HEIGHT/2):
             return SoccerAction(Vector2D(),Vector2D())
         else:"""
-        return SoccerAction(acceleration = p-self.posi_joueur(),shoot = Vector2D())
+        return SoccerAction(acceleration = p-self.player,shoot = Vector2D())
     
     def aller_marcher(self,p):                                                    
-        v1=p-self.posi_joueur()
+        v1=p-self.player
         v1.norm=0.05
         return SoccerAction(acceleration = v1,shoot =Vector2D())
 
@@ -131,23 +135,23 @@ class SuperState ( object ):
         return self.aller_courrir(p)
         
     def ball_34(self):
-        if self.id_adversaire() == 2:
-            if (self.posi_ball().x>(3*settings.GAME_WIDTH)/4):
+        if self.id_team_adv() == 2:
+            if (self.ball.x>(3*settings.GAME_WIDTH)/4):
                 return 0                                                           #Attaque
             else:
                 return 1                                                           #Defense
-        if (self.id_adversaire() == 1):
-            if (self.posi_ball().x<(settings.GAME_WIDTH)/4):
+        if (self.id_team_adv() == 1):
+            if (self.ball.x<(settings.GAME_WIDTH)/4):
                 return 0                                                           #Attaque
             else:
                 return 1  
         
     def mini_shoot(self,p):
-        return SoccerAction(Vector2D(),(p-self.posi_joueur())*0.03)
+        return SoccerAction(Vector2D(),(p-self.player)*0.03)
     
     def shoot_but(self,p):
         if (self.ball_34()==0):
-            return SoccerAction(Vector2D(),(p-self.posi_joueur())*0.1)
+            return SoccerAction(Vector2D(),(p-self.player)*0.1)
         else:
             return self.mini_shoot(p) 
 

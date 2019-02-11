@@ -1,2 +1,2 @@
-from tools import *
-from Strategies import *
+from .tools import *
+from .Strategies import *
