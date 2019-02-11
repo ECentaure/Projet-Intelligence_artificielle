@@ -134,4 +134,4 @@ team2.add("jimmy", Attaquant_v2())
 # Create a match
 simu = Simulation(team1, team2)
 # Simulate and display the match
-show_simu(simu)
+#show_simu(simu)
