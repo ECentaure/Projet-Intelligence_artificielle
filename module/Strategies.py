@@ -43,7 +43,7 @@ class GardienStrategy(Strategy):
         s = SuperState(state, id_team, id_player)
         dist = s.distance(s.ball)
         
-        if(dist < 50 and distance(state, id_team, id_player, s.goal) < 10):
+        if(dist < 10):
             if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
                 return SoccerAction(shoot = s.goalAdv - s.player)
                 #return SoccerAction(shoot = allieProche(state, id_team, id_player))
