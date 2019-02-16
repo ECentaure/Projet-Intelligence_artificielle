@@ -154,5 +154,10 @@ class SuperState ( object ):
             return SoccerAction(Vector2D(),(p-self.player)*0.1)
         else:
             return self.mini_shoot(p) 
+    def decoupage_terrain(self):
+        j = self.player
+        X_case = math.floor(((j.x)/(150))*4)
+        Y_case = math.floor(((j.y)/(90))*3)
+        return (X_case,Y_case)
 
 
