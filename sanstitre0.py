@@ -109,14 +109,6 @@ class Attaquant_v2(Strategy):
         else:
             return fct.aller_courrir_marcher(ball)  
 
-
-
-class Solo(Strategy):
-    def __init__(self):
-        Strategy.__init__(self,"Attaquantv_2")
-        
-    def compute_strategy(self,state,id_team,id_player):
-        fct = SuperState(state,id_team,id_player)
     
 
         
