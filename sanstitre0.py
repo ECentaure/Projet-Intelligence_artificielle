@@ -8,7 +8,7 @@ Created on Mon Jan 21 18:00:28 2019
 #from actions import *
 #from superstate import *
 from soccersimulator import Strategy, SoccerAction, Vector2D, SoccerTeam, Simulation,show_simu, settings
-from module import *
+from Pain_de_mie import *
 import math
 
 
