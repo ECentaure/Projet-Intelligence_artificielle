@@ -61,7 +61,35 @@ class DefenseurStrategy(Strategy):
             return SoccerAction(shoot = s.goal - s.player)
         else:
             return SoccerAction(acceleration = s.ball - s.player)
+class Strat_switch(Strategy):
+    def __init__(self):
+        Strategy.__init__(self, "Switch")
+            
+    def compute_strategy_def(self, state, id_team, id_player):
+        s = SuperState(state, id_team, id_player)
+        dist = distance(state, id_team, id_player, s.ball)
+        if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
+            return SoccerAction(shoot = s.goal - s.player)
+        else:
+            return SoccerAction(acceleration = s.ball - s.player)
+
+    def compute_strategy_attack(self, state, id_team, id_player):
+        s = SuperState(state, id_team, id_player)
+        dist = distance(state, id_team, id_player, s.ball)
+            
+        if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
+            return SoccerAction(shoot = s.goalAdv - s.player)
+        else:
+            return SoccerAction(acceleration = s.ball - s.player)
         
+    def compute_strategy(self, state, id_team, id_player):
+       
+        s = SuperState(state, id_team, id_player)
+        if(joueur_proche_objet(state,id_team_adv(id_team),id_player,state.ball.position)) and joueur_proche_objet(state,id_team,id_player,s.goal):
+           return self.compute_strategy_def( state, id_team, id_player)
+        else:
+           return self.compute_strategy_attack( state, id_team, id_player)
+    
 # Create teams
 team1 = SoccerTeam(name="Team 1")
 team2 = SoccerTeam(name="Team 2")
