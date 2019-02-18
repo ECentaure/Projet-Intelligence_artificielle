@@ -43,12 +43,25 @@ class SuperState ( object ):
     
     def liste_joueur(state, id_team, id_player):
         return [state.player_state(id_team,id_player) for(id_team , id_player ) in state.players if id_team == self.id_team]
-
-    def ami_proche(state, id_team, id_player):
-        return min(liste_joueur(state, id_team, id_player))
+    
+    def ami_proche_pos(state, id_team, id_player):
+    L = liste_joueur(state, id_team) 
+    liste_position = [state.player_state(it,ip).position for (it,ip) in L if ip != id_player]
+    L_distance = [distance(state,id_team,id_player,joueur) for joueur in liste_position] #on recupère la position de chaque joeurs 
+    return min(L_distance)
     #return allies
-    def adv_proche(state, id_team, id_player):
-        return min(liste_joueur(state, id_team_adv(), id_player))
+def adv_proche_pos(state, id_team, id_player):
+    L = liste_joueur(state, id_team_adv(id_team)) 
+    liste_position = [state.player_state(it,ip).position for (it,ip) in L if ip != id_player]
+    L_distance = [distance(state,id_team,id_player,joueur) for joueur in liste_position] #on recupère la position de chaque joeurs 
+    return min(L_distance)
+
+def joueur_proche_objet(state, id_team, id_player,objet):
+    Ladv = liste_joueur(state, id_team_adv(id_team)) 
+    Lami = liste_joueur(state, id_team) 
+    Ljoueurs = Ladv+Lami
+    L_distance = [distance(state,it,ip,objet) for (it,ip) in Ljoueurs] #on recupère la position de chaque joeurs 
+    return min(L_distance)
 
     def distance(state, id_team, id_player, cible):
         dist = math.sqrt(math.pow((cible.x - state.player_state(id_team, id_player).position.x),2) + 
