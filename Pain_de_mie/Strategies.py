@@ -107,15 +107,47 @@ class Attaquant_v2(Strategy):
         else:
             return fct.aller_courrir_marcher(ball)  
 
+class Strat_switch(Strategy):
+    def __init__(self):
+        Strategy.__init__(self, "Switch")
+            
+    def compute_strategy_def(self, state, id_team, id_player):
+        s = SuperState(state, id_team, id_player)
+        dist = distance(state, id_team, id_player, s.ball)
 
+        if(dist < 50 and distance(state, id_team, id_player, s.goal) < 10):
+            if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
+               # return SoccerAction(shoot = s.goalAdv - s.player)
+                return SoccerAction(shoot = Vector2D(ami_proche_pos(state, id_team, id_player))) #le gardien renvoie le ballon vers son allié le plus proche
+                   
+            else:
+                return SoccerAction(acceleration = s.ball - s.player)
+        else:
+             return SoccerAction(acceleration = s.goal - s.player)
+         
+    def compute_strategy_attack(self, state, id_team, id_player):
+        s = SuperState(state, id_team, id_player)
+        dist = distance(state, id_team, id_player, s.ball)
+            
+        if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
+            return SoccerAction(shoot = s.goalAdv - s.player)
+        else:
+            return SoccerAction(acceleration = s.ball - s.player)
+        
+    def compute_strategy(self, state, id_team, id_player):
+       
+        s = SuperState(state, id_team, id_player)
+        if(joueur_proche_objet(state,id_team,id_player,state.ball.position))>30 and joueur_proche_objet(state,id_team_adv(id_team),id_player,s.goal)<10 and joueur_proche_objet(state,id_team,id_player,s.goal)<20:
+           return self.compute_strategy_def( state, id_team, id_player)
+        else:
+           return self.compute_strategy_attack( state, id_team, id_player)
         
 # Create teams
 team1 = SoccerTeam(name="Team 1")
 team2 = SoccerTeam(name="Team 2")
 
 # Add players
-team1.add("kiwi", Attaquant_v2())  # Random strategy
-
+team1.add("kiwi",Strat_switch()) 
 team2.add("Fonceur", Attaquant_v2())   # Static strategy
 #team2.add("nemo", FonceurStrategy()) 
 
