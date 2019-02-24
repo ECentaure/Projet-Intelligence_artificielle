@@ -162,6 +162,21 @@ class SuperState ( object ):
         
     def mini_shoot(self,p):
         return SoccerAction(Vector2D(),(p-self.player)*0.03)
+      
+    def ally_vitesse(self):
+        if (self.id_team==1):
+            if (self.id_player==0):
+                return self.state.player_state(1,1).vitesse
+            if (self.id_player==1):
+                return self.state.player_state(1,0).vitesse
+        if (self.id_team ==2):
+            if (self.id_player==0):
+                return self.state.player_state(2,1).vitesse
+            if (self.id_player ==1):
+                return self.state.player_state(2,0).vitesse
+            
+        
+            
     
     def shoot_but(self,p):
         if (self.ball_34()==0):
@@ -175,5 +190,52 @@ class SuperState ( object ):
         X_case = math.floor(((j.x)/(150))*4)
         Y_case = math.floor(((j.y)/(90))*3)
         return (X_case,Y_case)
+    
+    def ally_position(self):
+        if (self.id_team==1):
+            if (self.id_player==0):
+                return self.state.player_state(1,1).position
+            if (self.id_player==1):
+                return self.state.player_state(1,0).position
+        if (self.id_team==2):
+            if (self.id_player==0):
+                return self.state.player_state(2,1).position
+            if (self.id_player==1):
+                return self.state.player_state(2,0).position
+    
+    
+    def shoot(self,p):
+        return SoccerAction(Vector2D(),p-self.player)
+    
+    def je_suis_dans_mon_camp(self):
+        if (self.id_team==1) and (self.player.x<=settings.GAME_WIDTH/2):
+            return True
+        else:
+            return False
+        if (self.id_team==2) and (self.player.x>=settings.GAME_WIDTH/2):
+            return True
+        else:
+            return False 
+    
+    def aller_gardien(self,p):
+        if (self.id_team==1):
+            if (self.ball.x+self.state.ball.vitesse.x>=(settings.GAME_WIDTH)/3) :
+                v3=self.ball-self.goalAdv
+                v3.norm=8.5
+                v2= Vector2D(0,settings.GAME_HEIGHT/2)
+                return self.aller_courrir_marcher(v2+v3)       
+            else:
+                return self.aller_courrir_marcher(p) 
+        if (self.id_team==2):
+            if(self.ball.x+self.state.ball.vitesse.x<=(2*settings.GAME_WIDTH)/3):
+                v3=self.ball-self.goalAdv
+                v3.norm=8.5
+                v2= Vector2D(settings.GAME_WIDTH,settings.GAME_HEIGHT/2)
+                return self.aller_courrir_marcher(v2+v3) 
+            else:  
+                return self.aller_courrir_marcher(p)
+       
+    
+    
 
 
