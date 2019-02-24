@@ -64,7 +64,7 @@ class DefenseurStrategy(Strategy):
         else:
             return SoccerAction(acceleration = s.ball - s.player)
    
-class Gardien_v2(Strategy):
+class Gardien(Strategy):
     """_/!\_ adapter pour du deux contre deux"""
     def __init__(self):
         Strategy.__init__(self, "Gardien")
@@ -92,7 +92,35 @@ class Gardien_v2(Strategy):
             return SoccerAction(acceleration = (position_ball-position_joueur)*maxPlayerAcceleration,shoot=tir*3)
         else:
             return SoccerAction(acceleration = new_position_joueur)
-
+class Attaquant_v2(Strategy):
+    def __init__(self):
+        Strategy.__init__(self,"Attaquantv_2")
+        
+    def compute_strategy(self,state,id_team,id_player):
+        fct = SuperState(state,id_team,id_player)
+        ball = state.ball.position
+        if (fct.tirer_ou_pas()):
+            return fct.aller_courrir_marcher(ball + 5*state.ball.vitesse)+fct.shoot_but(fct.goalAdv)
+        else:
+            return fct.aller_courrir_marcher(ball + 5*state.ball.vitesse)
+ 
+class Gardien_v2(Strategy):
+    def __init__(self):
+        Strategy.__init__(self,"Attaquantv_2")
+        
+    def compute_strategy(self,state,id_team,id_player):
+        fct = SuperState(state,id_team,id_player)
+        ball = state.ball.position 
+        if (fct.tirer_ou_pas()):
+            return fct.aller_gardien(ball + 5*state.ball.vitesse)+fct.shoot(fct.ally_position()+fct.ally_vitesse())    
+        else:
+            if fct.je_suis_dans_mon_camp():
+                if (ball.distance(fct.player)<10):
+                    return fct.aller_courrir_marcher(ball)
+                else:
+                    return fct.aller_gardien(ball + 5*state.ball.vitesse)   
+            else:
+                return fct.aller_gardien(ball + 5*state.ball.vitesse)+fct.shoot(fct.ally_position()+fct.ally_vitesse())   
 			
 class Attaquant_v2(Strategy):
     def __init__(self):
