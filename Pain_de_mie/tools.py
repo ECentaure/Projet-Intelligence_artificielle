@@ -57,9 +57,11 @@ class SuperState ( object ):
         return self.distance_j_b() < PLAYER_RADIUS + BALL_RADIUS
     
     def aller_courrir(self,p):
-        """if (self.posi_ball().x==settings.GAME_WIDTH/2) and (self.posi_ball().y==settings.GAME_HEIGHT/2):
-            return SoccerAction(Vector2D(),Vector2D())
-        else:"""
+        return SoccerAction(acceleration = p-self.player,shoot = Vector2D())
+    
+    def vers_but(self,p):
+        if(self.player.distance(self.ennemi_proche(self.id_team,self.id_player)) < 8):
+            return self.contourne()
         return SoccerAction(acceleration = p-self.player,shoot = Vector2D())
     
     def aller_marcher(self,p):                                                    
@@ -178,8 +180,36 @@ class SuperState ( object ):
         
         return self.player.distance(but)
     
+ 
+    def ennemi_proche(self, id_team, id_player):
+        opponents = [self.state.player_state(id_team, id_player) for (id_team, id_player) in self.state.players if (id_team != self.id_team)]
+        return min([(self.player.distance(player_p.position), player_p.position) for player_p in opponents])[1]
+    
+    
+    def contourne(self):
+        adv = self.ennemi_proche(self.id_team,self.id_player)
+        vect_joueurs = adv-self.player
+        new_vect = vect_joueurs
+        if(adv.x > self.player.x):
+            if(adv.y> GAME_HEIGHT/2):
+                new_vect.angle -= math.pi/6
+                return self.aller_courrir_marcher(self.ball + 5*self.state.ball.vitesse) + SoccerAction(acceleration = Vector2D(), shoot= new_vect*0.25)
+            else:
+                new_vect.angle += math.pi/6
+                return self.aller_courrir_marcher(self.ball + 5*self.state.ball.vitesse) + SoccerAction(acceleration = Vector2D(), shoot= new_vect*0.25)
+        else:
+            return self.shoot_but(self.goalAdv)
+
+    
    
 
+
+def id_team_adv(p):
+        if(p ==1):
+            return 2
+        return 1
+    
+    
 def liste_joueur(state, id_team): #donne une liste de state de tout les joueurs
     return [(it , ip) for (it, ip) in state.players if it == id_team]
 
@@ -193,8 +223,8 @@ def ami_proche_pos(state, id_team, id_player):
 def adv_proche_pos(state, id_team, id_player):
     L = liste_joueur(state, id_team_adv(id_team)) 
     liste_position = [state.player_state(it,ip).position for (it,ip) in L if ip != id_player]
-    L_distance = [distance(state,id_team,id_player,joueur) for joueur in liste_position] #on recupère la position de chaque joeurs 
-    return min(L_distance)
+    L_distance = [(distance(state,id_team,id_player,joueur),joueur) for joueur in liste_position] #on recupère la position de chaque joeurs 
+    return min(L_distance)[1]
 
 def joueur_proche_objet(state, id_team, id_player,objet):
     Ladv = liste_joueur(state, id_team_adv(id_team)) 
@@ -240,7 +270,9 @@ def gogetter(state):
     else :
         return SoccerAction (acceleration = state.ball - state.player )        
 
-    
+def distance(state, id_team, id_player, cible):
+     dist = math.sqrt(math.pow((cible.x - state.player_state(id_team, id_player).position.x),2) + math.pow((cible.y - state.player_state(id_team, id_player).position.y),2))
+     return dist  
    
     
 
