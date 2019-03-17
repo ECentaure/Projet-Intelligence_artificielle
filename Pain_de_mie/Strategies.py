@@ -27,8 +27,8 @@ class FonceurStrategy(Strategy):
 
     def compute_strategy(self, state, id_team, id_player):
         s = SuperState(state, id_team, id_player)
-        dist = s.distance(s.ball)
-             
+        dist = distance(state, id_team, id_player, s.ball)
+            
         if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
             return SoccerAction(shoot = s.goalAdv - s.player)
         else:
@@ -92,6 +92,7 @@ class Gardien(Strategy):
             return SoccerAction(acceleration = (position_ball-position_joueur)*maxPlayerAcceleration,shoot=tir*3)
         else:
             return SoccerAction(acceleration = new_position_joueur)
+        
 class Attaquant_v2(Strategy):
     def __init__(self):
         Strategy.__init__(self,"Attaquantv_2")
@@ -99,10 +100,11 @@ class Attaquant_v2(Strategy):
     def compute_strategy(self,state,id_team,id_player):
         fct = SuperState(state,id_team,id_player)
         ball = state.ball.position
+        but = fct.goalAdv
         if (fct.tirer_ou_pas()):
-            return fct.aller_courrir_marcher(ball + 5*state.ball.vitesse)+fct.shoot_but(fct.goalAdv)
+            return fct.aller_courrir_marcher(ball + 5*state.ball.vitesse) + fct.shoot_but(but)
         else:
-            return fct.aller_courrir_marcher(ball + 5*state.ball.vitesse)
+            return fct.aller_courrir_marcher(ball)   
  
 class Gardien_v2(Strategy):
     def __init__(self):
@@ -121,19 +123,7 @@ class Gardien_v2(Strategy):
                     return fct.aller_gardien(ball + 5*state.ball.vitesse)   
             else:
                 return fct.aller_gardien(ball + 5*state.ball.vitesse)+fct.shoot(fct.ally_position()+fct.ally_vitesse())   
-			
-class Attaquant_v2(Strategy):
-    def __init__(self):
-        Strategy.__init__(self,"Attaquantv_2")
-        
-    def compute_strategy(self,state,id_team,id_player):
-        fct = SuperState(state,id_team,id_player)
-        ball = state.ball.position
-        but = fct.goalAdv
-        if (fct.tirer_ou_pas()):
-            return fct.aller_courrir_marcher(ball + 5*state.ball.vitesse) + fct.shoot_but(but)
-        else:
-            return fct.aller_courrir_marcher(ball)  
+
 
 class Strat_switch(Strategy):
     def __init__(self):
@@ -176,10 +166,7 @@ team2 = SoccerTeam(name="Team 2")
 
 # Add players
 team1.add("kiwi",Strat_switch()) 
-team2.add("Fonceur", Attaquant_v2())   # Static strategy
-#team2.add("nemo", FonceurStrategy()) 
-
-team2.add("jimmy", Gardien_v2()) 
+team2.add("Fonceur", Attaquant_v2())   
 
 # Create a match
 simu = Simulation(team1, team2)
