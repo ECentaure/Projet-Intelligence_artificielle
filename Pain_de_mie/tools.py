@@ -21,6 +21,24 @@ maxBallAcceleration = 5
 from soccersimulator import *
 from math import *
 
+class SINGLETON():
+    class __SINGLETON:
+        def __init__(self, id_team,id_player):
+            self.id_team = id_team
+            self.id_player = id_player
+        def __str__(self):
+            return repr(self) + self.val
+    instance = None 
+    def __init__(self,id_team,id_player):
+        if not SINGLETON.instance:
+            SINGLETON.instance = SINGLETON.__SINGLETON(id_team,id_player)
+        else:
+            SINGLETON.instance.id_team = id_team
+            SINGLETON.instance.id_player = id_player
+    def __getattr__(self, name):
+        return getattr(self.instance,name)        
+
+
 class SuperState ( object ):
     def __init__ ( self , state , id_team , id_player ):
         self . state = state
