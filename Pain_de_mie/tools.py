@@ -209,6 +209,13 @@ def id_team_adv(p):
             return 2
         return 1
     
+def tir_rebond(state, id_team, id_player, cible):
+    s =SuperState(state , id_team , id_player )
+    A = settings.GAME_HEIGTH - (s.goalAdv.y/2) 
+    O = s.goal.x - s.player.x
+    Angle = math.acos(A/O) * (180/math.pi)
+    Gamma = (90 - Angle) * (math.pi/180)
+    SoccerAction(angle = Gamma)
     
 def liste_joueur(state, id_team): #donne une liste de state de tout les joueurs
     return [(it , ip) for (it, ip) in state.players if it == id_team]
