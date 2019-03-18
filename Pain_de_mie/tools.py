@@ -220,8 +220,12 @@ class SuperState ( object ):
 
     
    
-
-
+def Shooter(state, id_team, id_player, singleton):
+        s = SuperState(state, id_team, id_player);
+        singleton.id_team = id_team  #le dernier joueur a avoir le ballon
+        singleton.id_player = id_player
+        return SoccerAction(shoot = s.goalAdv - s.player)
+    
 def id_team_adv(p):
         if(p ==1):
             return 2
