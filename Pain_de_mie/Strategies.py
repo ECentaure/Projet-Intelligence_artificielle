@@ -62,7 +62,7 @@ class Defenseur(Strategy):
         mystate = tools.SuperState(state,idteam,idplayer)
         myaction= tools.Action(mystate)
         return myaction.defense()
-    
+		
 class Attaquant4(Strategy):
     def __init__(self,name="Attaque"):
         Strategy.__init__(self,name)
@@ -70,7 +70,6 @@ class Attaquant4(Strategy):
         mystate = tools.SuperState(state,idteam,idplayer)
         myaction= tools.Action(mystate)
         return myaction.action_attaquant4()
-		
    
 class Gardien(Strategy):
     """_/!\_ adapter pour du deux contre deux"""
@@ -173,10 +172,13 @@ team1 = SoccerTeam(name="Team 1")
 team2 = SoccerTeam(name="Team 2")
 
 # Add players
-team1.add("kiwi",Strat_switch()) 
-team1.add("Fonceur", Defenseur()) 
-team2.add("Fonceur", Defenseur())   
-team2.add("Fonceur", Attaquant4())   
+team2.add("kiwi",Strat_switch()) 
+team2.add("Fonceur", Defenseur()) 
+team1.add("Defenseur", Defenseur())   
+team1.add("Attaquant", Attaquant4()) 
+team1.add("Fonceur", FonceurStrategy())  
+team1.add("strat",Strat_switch()) 
+ 
 
 # Create a match
 simu = Simulation(team1, team2)
