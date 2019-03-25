@@ -44,23 +44,46 @@ class SuperState ( object ):
         self . state = state
         self . id_team = id_team
         self . id_player = id_player
-        
+	
     @property
-    def ball ( self ):
+    def ball(self):
         return self.state.ball.position
+    @property
+    def ball_vitesse(self):
+        return self.state.ball.vitesse
+		
     @property
     def player(self):
         return self.state.player_state(self.id_team, self.id_player).position
+		
     @property
     def goalAdv ( self ):
         return Vector2D((2 - self.id_team )*settings.GAME_WIDTH , settings.GAME_HEIGHT / 2)
+		
     @property
     def goal(self):
         return Vector2D((self.id_team - 1)*settings.GAME_WIDTH , settings.GAME_HEIGHT / 2)
+	
+    @property
+    def position_defenseur(self):
+        if self.id_team == 2 :
+            return Vector2D(GAME_WIDTH*(15.0/16),GAME_HEIGHT/2)
+        return Vector2D(GAME_WIDTH/16.0,GAME_HEIGHT/2)
     
+    def frappe_position(self):
+        return abs((self.ball-self.goalAdv).x)<=45
     
-    
-    
+    @property
+    def aller_vect(self):
+        return SoccerAction(self.vect_anticipe-self.player,Vector2D())
+    @property	
+    def vect_anticipe(self):    
+        return (self.ball+ 5.75*self.state.ball.vitesse)
+   
+    @property              
+    def vect_anticipe_att(self):    
+        return self.state.ball + 4.5*self.state.ball.vitesse 
+
     def id_team_adv(self):
         if(self.id_team ==1):
             return 2
@@ -70,6 +93,8 @@ class SuperState ( object ):
     def distance_j_b(self):
         return self.player.distance(self.ball)
      
+    def attaquant4_position_dribble(self):
+        return abs((self.ball-self.goal).x)>70
         
     def tirer_ou_pas(self):
         return self.distance_j_b() < PLAYER_RADIUS + BALL_RADIUS
@@ -121,6 +146,9 @@ class SuperState ( object ):
             
         
             
+    def get_dir_jeu(self):
+        return  (self.goalAdv-self.goal).normalize()
+    
     
     def shoot_but(self,p):
         if (self.ball_34()==0):
@@ -146,10 +174,28 @@ class SuperState ( object ):
                 return self.state.player_state(2,1).position
             if (self.id_player==1):
                 return self.state.player_state(2,0).position
+    @property
+    def can_def(self):
+        if self.id_team == 1 :
+            if self.ball.x<(GAME_WIDTH/4.0)+10 :
+                return True
+            return False
+        if self.ball.x>(GAME_WIDTH*(3.0/4))-10 :
+            return True
+        return False
     
-    
+    def ball_position_future(self):
+        if self.ball_vitesse.norm > 2 or self.ball_vitesse.norm < -2:
+            return self.ball+self.ball_vitesse*10
+        else :
+            return self.ball
+        
+        
     def shoot(self,p):
         return SoccerAction(Vector2D(),(p-self.player))
+    
+    def peut_frapper(self):
+        return (self.ball-self.player).norm <= settings.PLAYER_RADIUS + settings.BALL_RADIUS 
     
     def je_suis_dans_mon_camp(self):
         if (self.id_team==1) and (self.player.x<=settings.GAME_WIDTH/2):
@@ -202,21 +248,88 @@ class SuperState ( object ):
     def ennemi_proche(self, id_team, id_player):
         opponents = [self.state.player_state(id_team, id_player) for (id_team, id_player) in self.state.players if (id_team != self.id_team)]
         return min([(self.player.distance(player_p.position), player_p.position) for player_p in opponents])[1]
+			
+			
+class Action(object):
+    def __init__(self,state):
+        self.state = state
+     
     
     
-    def contourne(self):
-        adv = self.ennemi_proche(self.id_team,self.id_player)
-        vect_joueurs = adv-self.player
-        new_vect = vect_joueurs
-        if(adv.x > self.player.x):
-            if(adv.y> GAME_HEIGHT/2):
-                new_vect.angle -= math.pi/6
-                return self.aller_courrir_marcher(self.ball + 5*self.state.ball.vitesse) + SoccerAction(acceleration = Vector2D(), shoot= new_vect*0.25)
+    
+    def aller(self,p):
+        return SoccerAction((p-self.state.player),Vector2D())
+    
+    def aller_vers_balle(self):
+        return self.aller(self.state.ball+self.state.ball_vitesse)
+    
+    def shoot(self,p):
+        return SoccerAction(Vector2D(),0.1*(p-self.state.player))
+    
+    def shoot_but(self):
+        return self.shoot(self.state.goalAdv) 
+        
+    def pousse_ball(self):
+        return SoccerAction(Vector2D(),(self.state.goalAdv- self.state.ball_position_future())*0.015) # 0.02 constante pour le dribble
+
+    def pousse_ball_centre(self):
+        if self.state.domicile():
+            return SoccerAction(Vector2D(),(Vector2D(0,10)))
+        else :
+            return SoccerAction(Vector2D(),(Vector2D(-1,-2)))
+        
+    def position_coop_2v2(self):
+        nb_coop=len([idp for (idt, idp) in self.state.players if idt == self.idteam])
+        return self.state.player_state(self.key[0],(1+self.key[1])%(nb_coop)).position
+    
+    def degagement(self):
+        return self.shoot_but()
+
+    def passe_2v2(self):
+        return self.shoot(self.state.position_coop_2v2())
+
+#====================================================================================================================================
+#            Replacement 
+
+    
+    def replacement_milieu(self):
+        return self.aller(Vector2D(self.state.get_dir_jeu().x*45+self.state.position_mon_but().x,45))
+
+    def replacement_attaquant4(self):
+        return self.aller(Vector2D(self.state.get_dir_jeu().x*80+self.state.goal.x,self.state.ball.y))
+#====================================================================================================================================
+#                 Action Joueur    
+    
+    def action_milieu(self):
+         if self.state.milieu_position_action():
+            if not self.state.peut_frapper():
+                return self.aller_vers_balle()
             else:
-                new_vect.angle += math.pi/6
-                return self.aller_courrir_marcher(self.ball + 5*self.state.ball.vitesse) + SoccerAction(acceleration = Vector2D(), shoot= new_vect*0.25)
-        else:
-            return self.shoot_but(self.goalAdv)
+                return self.passe_2v2()
+         else :
+            return self.replacement_milieu()
+        
+    def action_attaquant4(self):
+        if self.state.attaquant4_position_dribble():
+            if not self.state.peut_frapper():
+                return self.aller_vers_balle()
+            elif not (self.state.frappe_position()):
+                return self.pousse_ball()
+            else :
+                return self.shoot_but()
+        else :
+            return self.replacement_attaquant4()
+        
+        
+    def defense(self):
+        if self.state.peut_frapper() :
+            return self.degagement()
+        if self.state.can_def :
+            return self.state.aller_vect
+        if self.state.ball.x>(GAME_WIDTH*(3.0/4))-10 :
+            return self.state.aller_vect
+        return self.aller(self.state.position_defenseur)
+
 
     
    
