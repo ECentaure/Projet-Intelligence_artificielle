@@ -6,7 +6,7 @@ Created on Mon Mar 25 16:19:11 2019
 @author: emeline
 """
 
-class QStrategy ( Strategy ):
+class QStrategy(Strategy):
     def __init__ ( self ):
         Strategy . __init__ ( self , "Q - learning " )
         self . strategies = dict ()
@@ -15,14 +15,14 @@ class QStrategy ( Strategy ):
     def add ( self , name , strategy ):
         self . strategies [ name ] = strategy
         if not self.current_strategy :
-        self . current_strategy = name
+            self . current_strategy = name
     def get_state ( self , state , id_team , id_player ):
         s = SuperState ( state , id_team , id_player )
         x = int ( s . player.x / GAME_WIDTH * 3)
         y = int ( s . player.y / GAME_HEIGHT * 5)
         return x , y , state.goal > 0
 
-def compute_strateg y ( self , state , id_team , id_player ):
+def compute_strategy ( self , state , id_team , id_player ):
     if self.qtable is None :
         strat = self.strategies[self.current_strategy]
         return strat.compute_strategy(state ,id_team ,id_player)
@@ -34,7 +34,7 @@ def compute_strateg y ( self , state , id_team , id_player ):
             strat = self . strategies [ strategy ]
             return strat.compute_strategy(state,id_team,id_player)
         else :
-            return SoccerAction ()
+            return SoccerAction()
 @property
 def strategy_names ( self ):
     return self.strategies.keys()
