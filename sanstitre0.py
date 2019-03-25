@@ -52,17 +52,24 @@ class GardienStrategy(Strategy):
         else:
              return SoccerAction(acceleration = s.goal - s.player)
          
-class DefenseurStrategy(Strategy):
-    def __init__(self):
-        Strategy.__init__(self, "Defenseur")
-        
-    def compute_strategy(self, state, id_team, id_player):
-        #s = SuperState(state, id_team, id_player)
-        dist = s.distance(s.ball)
-        if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
-            return SoccerAction(shoot = s.goal - s.player)
-        else:
-            return SoccerAction(acceleration = s.ball - s.player)
+
+
+    
+class Defenseur(Strategy):
+    def __init__(self,name="defense"):
+        Strategy.__init__(self,name)
+    def compute_strategy(self,state,idteam,idplayer):
+        mystate = tools.SuperState(state,idteam,idplayer)
+        myaction= tools.Action(mystate)
+        return myaction.defense()
+		
+class Attaquant4(Strategy):
+    def __init__(self,name="Attaque"):
+        Strategy.__init__(self,name)
+    def compute_strategy(self,state,idteam,idplayer):
+        mystate = tools.SuperState(state,idteam,idplayer)
+        myaction= tools.Action(mystate)
+        return myaction.action_attaquant4()
    
 class Gardien(Strategy):
     """_/!\_ adapter pour du deux contre deux"""
@@ -165,8 +172,13 @@ team1 = SoccerTeam(name="Team 1")
 team2 = SoccerTeam(name="Team 2")
 
 # Add players
-team1.add("kiwi",Strat_switch()) 
-team2.add("Fonceur", Attaquant_v2())   
+team2.add("kiwi",Strat_switch()) 
+team2.add("Fonceur", Defenseur()) 
+team1.add("Defenseur", Defenseur())   
+team1.add("Attaquant", Attaquant4()) 
+team1.add("Fonceur", FonceurStrategy())  
+team1.add("strat",Strat_switch()) 
+ 
 
 # Create a match
 simu = Simulation(team1, team2)
