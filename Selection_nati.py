@@ -12,17 +12,21 @@ GRADED_RETAIN_PERCENT = 0.5
 CHANCE_RETAIN_NONGRATED = 0.05
 POPULATION_COUNT = 100
 GRADED_INDIVIDUAL_RETAIN_COUNT = int(POPULATION_COUNT * GRADED_RETAIN_PERCENT)
+NB_GENERATIONS = 10
+NB_KEEP = 6
+COEFF_MUT = 0.3
 
 
 
 
 
+def get_random_population_list(a,b):
+    L = []
+    for i in range(0,100):
+        L.append({"power":(random()*(b-a)+a)})
+    return L
 
-def random_float(a,b):
-    return random.random.uniform(a,b)
 
-def get_random_population(a,b):
-    return {nom:(random()*(b-a)+a) for nom in range(1,101)}
 
 
 
@@ -36,7 +40,7 @@ class GoalSearch ( object ):
         self.max_steps = max_steps
         self.max_round_step = max_round_step
     
-    def start(self,show=True):
+    def start(self,show=False): #modifier à false pour que cela  se fasse automatiquement
         if not self.simu :
             team1 = SoccerTeam( " Team ␣ 1 " )
             team2 = SoccerTeam( " Team ␣ 2 " )
@@ -63,8 +67,8 @@ class GoalSearch ( object ):
     
     def begin_round ( self , team1 , team2 , state ):
         ball = Vector2D.create_random(low =0,high =1)
-        ball.x = 75
-        ball.y =45
+        ball.x = 105
+        ball.y =random()*90 
         self.simu.state.states [(1,0)].position = ball.copy() # Player position
         self.simu.state.states [(1,0)].vitesse = Vector2D() # Player accelerati
         self.simu.state.ball.position = ball.copy() # Ball position
@@ -81,8 +85,7 @@ class GoalSearch ( object ):
         if state.goal > 0:
             self.criterion += 1 
         self.cpt_trials += 1
-        
-        print(self.cur_param,end = "␣␣␣␣" )
+        print(self.cur_param,end = "␣␣␣␣") 
         print( "Crit:␣{}␣␣␣Cpt:␣{} ".format(self.criterion,self.cpt_trials))
         if self.cpt_trials >= self.trials :
             self.res[tuple(self.cur_param.items())]= self.criterion*1./self.trials
@@ -92,10 +95,16 @@ class GoalSearch ( object ):
             # Next parameter value
             self.cur_param = next(self.param_grid,None )
             if self.cur_param is None:
-                #brassage
-                
-                
-                self.simu.end_match()
+                 self.simu.end_match()
+                #"""int j = 0
+                #while j< NB_GENERATIONS:
+                 #   self.selection()
+                  #  G2= self.reproduction()
+                   #  L = []
+                    # for i in range(0, len(G2)):
+                     #    L.append({"power":G2[i]})"""
+                    
+           
 
     def update_round (self, team1 , team2,state ):
 # Stop the round if it is too long
@@ -107,3 +116,43 @@ class GoalSearch ( object ):
     
     def get_best(self):
         return max(self.res, key=self.res.get)
+    
+    
+    
+    def selection(self):
+        L = sorted( (value, key) for (key,value) in self.get_res().items())
+        Select = []
+        for i in range(0,NB_KEEP):
+            Select.append(L[i][1][0][1])
+        return Select
+    
+    
+    def reproduction(self):
+        L = self.selection()
+        GEN2 = []
+        for  i  in range (0,len(L)//2):
+            for j in range (len(L)//2, len(L)):
+                n = random()
+                if(random() < CHANCE_TO_MUTATE):
+                    GEN2.append(((L[i]+ L[j])/2) + COEFF_MUT)
+                    GEN2.append( ((n*L[i]+ (1-n)*L[j])/2) + COEFF_MUT)
+                else:
+                    GEN2.append((L[i]+ L[j])/2)
+                    GEN2.append( (n*L[i]+ (1-n)*L[j])/2 )
+        return GEN2
+    
+    def enjambement(self):
+        L = self.selection()
+        GEN2 = []
+        for  i  in range (0,len(L)//2):
+            for j in range (len(L)//2, len(L)):
+                n = random()
+                if(random() < CHANCE_TO_MUTATE):
+                    GEN2.append(((L[i]+ L[j])/2) + COEFF_MUT)
+                    GEN2.append( ((n*L[i]+ (1-n)*L[j])/2) + COEFF_MUT)
+                else:
+                    GEN2.append((L[i]+ L[j])/2)
+                    GEN2.append( (n*L[i]+ (1-n)*L[j])/2 )
+        return GEN2
+            
+        
