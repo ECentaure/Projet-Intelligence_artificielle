@@ -83,6 +83,14 @@ class Defenseur(Strategy):
         mystate = tools.SuperState(state,idteam,idplayer)
         myaction= tools.Action(mystate)
         return myaction.defense()
+
+class Defenseur2(Strategy):
+    def __init__(self,name="defense"):
+        Strategy.__init__(self,name)
+    def compute_strategy(self,state,idteam,idplayer):
+        mystate = tools.SuperState(state,idteam,idplayer)
+        myaction= tools.Action(mystate)
+        return myaction.defense2()
 		
 class Attaquant4(Strategy):
     def __init__(self,name="Attaque"):
