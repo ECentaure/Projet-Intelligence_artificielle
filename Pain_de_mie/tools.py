@@ -88,8 +88,13 @@ class SuperState ( object ):
         if(self.id_team ==1):
             return 2
         return 1
-    
-    
+
+    def contourne_obstacle(self , obstacle):
+        alpha = obstacle - self.player
+        gamma = self.goalAdv - self.player
+        beta = Vector2D(angle = 1.57 + alpha.angle, norm = 0.3)
+        return SoccerAction(beta)
+
     def distance_j_b(self):
         return self.player.distance(self.ball)
      
