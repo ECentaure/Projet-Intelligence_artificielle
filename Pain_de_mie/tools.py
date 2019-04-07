@@ -1,14 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb  4 14:38:45 2019
-
-@author: emeline
-"""
-
-
-
 GAME_WIDTH = 150
+GAME_QUARTER = GAME_WIDTH/4
+GAME_HALF = GAME_WIDTH/2
+GAME_THREE_QUARTER = GAME_WIDTH*3/4
 GAME_HEIGHT = 90
 GAME_GOAL_HEIGHT = 10
 PLAYER_RADIUS = 1.
@@ -88,13 +81,8 @@ class SuperState ( object ):
         if(self.id_team ==1):
             return 2
         return 1
-
-    def contourne_obstacle(self , obstacle):
-        alpha = obstacle - self.player
-        gamma = self.goalAdv - self.player
-        beta = Vector2D(angle = 1.57 + alpha.angle, norm = 0.3)
-        return SoccerAction(beta)
-
+    
+    
     def distance_j_b(self):
         return self.player.distance(self.ball)
      
@@ -189,6 +177,16 @@ class SuperState ( object ):
             return True
         return False
     
+    def can_def2(self):
+        if self.id_team == 1 :
+            if self.ball.x < GAME_HALF-10 and self.ball.x> GAME_WIDTH*(2/10):
+                return True
+            return False
+        if self.ball.x > (GAME_HALF+10) and self.ball.x < GAME_WIDTH*(8/10):
+            return True
+        return False
+        
+    
     def ball_position_future(self):
         if self.ball_vitesse.norm > 2 or self.ball_vitesse.norm < -2:
             return self.ball+self.ball_vitesse*10
@@ -211,6 +209,12 @@ class SuperState ( object ):
             return True
         else:
             return False 
+    @property    
+    def ball_camp(self):
+        if (pow(-1 ,self.id_team) * self.ball.x) >= (pow(-1 ,self.id_team) *settings.GAME_WIDTH/2):
+            return True
+        else:
+            return False
     
     def aller_gardien(self,p):
         if (self.id_team==1):
@@ -249,18 +253,30 @@ class SuperState ( object ):
         
         return self.player.distance(but)
     
+    def est_proche_adv(self,p):
+        opponents = [self.state.player_state(id_team, id_player).position for (id_team, id_player) in self.state.players if ( id_team != self.id_team)]
+        for i in range(0, len(opponents)):
+            if(p.distance(opponents[i]) < 3):
+                return True
+        return False
+    
  
     def ennemi_proche(self, id_team, id_player):
         opponents = [self.state.player_state(id_team, id_player) for (id_team, id_player) in self.state.players if (id_team != self.id_team)]
         return min([(self.player.distance(player_p.position), player_p.position) for player_p in opponents])[1]
+    
+    def joueur_proche_rang(self, rang):
+        """ Classe tous les joueurs de l'équipe du player du  plus proche au plus loin et renvoie le joueur corresponsant au rang"""
+        LP= [self.state.player_state(it,ip).position for (it,ip) in self.state.players if it == self.id_team and ip != self.id_player]
+        L_distance = [(self.player.distance(player_p), player_p) for player_p in LP]#on recupère la position de chaque joeurs 
+        L_distance.sort()
+        return L_distance[rang-1][1]
+        
 			
 			
 class Action(object):
     def __init__(self,state):
-        self.state = state
-     
-    
-    
+        self.state = state   
     
     def aller(self,p):
         return SoccerAction((p-self.state.player),Vector2D())
@@ -289,6 +305,9 @@ class Action(object):
     
     def degagement(self):
         return self.shoot_but()
+    
+    def passe(self,p):
+        return SoccerAction(Vector2D(),(p-self.state.player).norm_max(3))
 
     def passe_2v2(self):
         return self.shoot(self.state.position_coop_2v2())
@@ -302,6 +321,11 @@ class Action(object):
 
     def replacement_attaquant4(self):
         return self.aller(Vector2D(self.state.get_dir_jeu().x*80+self.state.goal.x,self.state.ball.y))
+		
+    def replacement_defense2(self):
+        if(self.state.id_team == 1):
+            return self.aller(Vector2D(GAME_HEIGHT/2, GAME_QUARTER))
+        return self.aller(Vector2D(GAME_HEIGHT/2,GAME_THREE_QUARTER))
 #====================================================================================================================================
 #                 Action Joueur    
     
@@ -331,9 +355,38 @@ class Action(object):
             return self.degagement()
         if self.state.can_def :
             return self.state.aller_vect
-        if self.state.ball.x>(GAME_WIDTH*(3.0/4))-10 :
+        if self.state.ball.x>(GAME_WIDTH*(3.0/4))-5 :
             return self.state.aller_vect
         return self.aller(self.state.position_defenseur)
+    
+    def defense2(self):
+        if self.state.ball_camp:
+            if self.state.peut_frapper():
+                j1 = self.state.joueur_proche_rang(3)
+                j2 = self.state.joueur_proche_rang(2)
+                if self.state.est_proche_adv(j1):
+                    return self.degagement()
+                elif self.state.est_proche_adv(j2):
+                    return self.degagement()
+                else:
+                    if(self.state.player.distance(j2) > self.state.player.distance(j1)):
+                        return self.passe(j2)
+                    else:
+                        return self.passe(j1)
+            else:
+                 if self.state.can_def2():
+                     return self.state.aller_vect
+                 else:
+                     return SoccerAction(acceleration = Vector2D(0, self.state.ball.y-self.state.player.y), shoot = Vector2D(0,0))            
+        else:
+            if(self.state.id_team == 1):
+                return self.aller(Vector2D(GAME_QUARTER,GAME_HEIGHT/2))
+            else:
+                return self.aller(Vector2D(GAME_THREE_QUARTER,GAME_HEIGHT/2))
+        
+                    
+                
+            
 
 
     
@@ -371,7 +424,7 @@ def adv_proche_pos(state, id_team, id_player):
     L = liste_joueur(state, id_team_adv(id_team)) 
     liste_position = [state.player_state(it,ip).position for (it,ip) in L if ip != id_player]
     L_distance = [(distance(state,id_team,id_player,joueur),joueur) for joueur in liste_position] #on recupère la position de chaque joeurs 
-    return min(L_distance)[1]
+    return min(L_distance)
 
 def joueur_proche_objet(state, id_team, id_player,objet):
     Ladv = liste_joueur(state, id_team_adv(id_team)) 
@@ -419,7 +472,4 @@ def gogetter(state):
 
 def distance(state, id_team, id_player, cible):
      dist = math.sqrt(math.pow((cible.x - state.player_state(id_team, id_player).position.x),2) + math.pow((cible.y - state.player_state(id_team, id_player).position.y),2))
-     return dist  
-   
-    
-
+     return dist 
