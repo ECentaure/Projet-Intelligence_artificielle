@@ -445,8 +445,9 @@ def distance(self, cible):
     return dist 
  
 
-def passe(self,state, id_team, id_player):
-    v = Vector2D(self.ami_proche() - self.player) 
+def passe(self,state, id_team, id_player,cible_pos):
+    s =SuperState(state , id_team , id_player )
+    v = Vector2D(cible_pos - s.player) 
     return SoccerAction(acceleration = Vector2D(), angle = v.angle)
 
 def anticiper_ball(self):
