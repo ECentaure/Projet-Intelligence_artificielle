@@ -36,8 +36,7 @@ class Attaque(Strategy):
         s = SuperState(state, id_team, id_player)
         dist = distance(state, id_team, id_player, s.ball)
         adv_position = state.player_state(id_team_adv(id_team),id_player).position
-        v = adv_position - s.player
-        v.normalize()
+        dist_adv_terrain = distance(state, id_team, id_player, adv_position)
         dist_players = distance(state, id_team, id_player, adv_position)
         v.norm = dist_players
         if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
