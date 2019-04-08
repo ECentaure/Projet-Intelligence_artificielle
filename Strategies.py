@@ -63,14 +63,6 @@ class Defenseur(Strategy):
         myaction= tools.Action(mystate)
         return myaction.defense()
 		
-class Defenseur2(Strategy):
-    def __init__(self,name="defense"):
-        Strategy.__init__(self,name)
-    def compute_strategy(self,state,idteam,idplayer):
-        mystate = tools.SuperState(state,idteam,idplayer)
-        myaction= tools.Action(mystate)
-        return myaction.defense2()
-		
 class Attaquant4(Strategy):
     def __init__(self,name="Attaque"):
         Strategy.__init__(self,name)
@@ -180,14 +172,12 @@ team1 = SoccerTeam(name="Team 1")
 team2 = SoccerTeam(name="Team 2")
 
 # Add players
-team2.add("kiwi",Defenseur2()) 
+team2.add("kiwi",Strat_switch()) 
 team2.add("Fonceur", Defenseur()) 
 team1.add("Defenseur", Defenseur())   
-team2.add("Attaquant", Attaquant4())
-team1.add("kiwi",Defenseur2())  
-team2.add("Fonceur", FonceurStrategy())  
+team1.add("Attaquant", Attaquant4()) 
+team1.add("Fonceur", FonceurStrategy())  
 team1.add("strat",Strat_switch()) 
-team1.add("Defenseur", Attaquant_v2())
  
 
 # Create a match

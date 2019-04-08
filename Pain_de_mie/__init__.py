@@ -9,8 +9,8 @@ def get_team(nb_players ):
         team.add(" Gardien " , Defenseur())
         team.add(" Attaquant " ,Attaquant4())
     if nb_players == 4:
-        team.add(" Gardien " , Defenseur())
-        team.add(" Attaquant " ,Attaquant4())
-        team.add(" Striker " , Strat_switch())
-        team.add("Go",FonceurStrategy())
+        team.add(" Pomme " , Defenseur())
+        team.add(" Orange " ,Attaquant4())
+        team.add(" Banane " , Defenseur2())
+        team.add("Kiwi",FonceurStrategy())
     return team

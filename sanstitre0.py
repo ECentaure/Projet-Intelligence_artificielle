@@ -21,6 +21,27 @@ class RandomStrategy(Strategy):
         # id_player starts at 0
         return SoccerAction(Vector2D.create_random(), Vector2D.create_random())
 
+class DodgeStrategy(Strategy):   ####en travaux####
+    def __init__(self):
+        Strategy.__init__(self, "Random")
+
+    def compute_strategy(self, state, id_team, id_player):
+        # id_team is 1 or 2
+        # id_player starts at 0
+        #return SoccerAction(Vector2D.create_random(), Vector2D.create_random())
+        v = Vector2D(angle = 0, norm = 0.3)
+        #return SoccerAction(v)
+        s = SuperState(state,id_team,id_player)        
+    
+        obstacle = Vector2D(settings.GAME_WIDTH/2, settings.GAME_HEIGHT/2) 
+        
+        if(distance(state, id_team, id_player,obstacle) < 10 ):
+            return s.contourne_obstacle(obstacle)
+        elif(  distance(state, id_team, id_player, s.ball) < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
+            return SoccerAction(Vector2D(),(s.goalAdv- s.ball_position_future())*0.015)
+        else:
+            return SoccerAction(acceleration = s.ball - s.player)
+
 class FonceurStrategy(Strategy):
     def __init__(self):
         Strategy.__init__(self, "Fonceur")
@@ -62,6 +83,14 @@ class Defenseur(Strategy):
         mystate = tools.SuperState(state,idteam,idplayer)
         myaction= tools.Action(mystate)
         return myaction.defense()
+
+class Defenseur2(Strategy):
+    def __init__(self,name="defense"):
+        Strategy.__init__(self,name)
+    def compute_strategy(self,state,idteam,idplayer):
+        mystate = tools.SuperState(state,idteam,idplayer)
+        myaction= tools.Action(mystate)
+        return myaction.defense2()
 		
 class Attaquant4(Strategy):
     def __init__(self,name="Attaque"):
