@@ -205,7 +205,7 @@ team2 = SoccerTeam(name="Team 2")
 team2.add("kiwi",Strat_switch()) 
 team2.add("paille", Defenseur()) 
 
-team1.add("Defenseur", Defenseur())   
+team1.add("DodgeStrategy", Defenseur())   
 team1.add("Attaquant", Attaquant4()) 
 team1.add("Fonceur", FonceurStrategy())  
 #team1.add("strat",Strat_switch()) 
