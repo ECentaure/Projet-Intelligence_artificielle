@@ -43,12 +43,12 @@ class Attaque(Strategy):
         adv_position = state.player_state(id_team_adv(id_team),id_player).position
         
         if(id_team_adv(id_team) == 2):
-            y_plus = adv_position.y + max(abs(GAME_HEIGHT - adv_position.y  ), abs( adv_position.y ) )
-            x_plus =  adv_position.x + max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))
+            y_plus = abs(adv_position.y + max(abs(GAME_HEIGHT - adv_position.y  ), abs( adv_position.y ) )% GAME_HEIGHT)
+            x_plus =  adv_position.x + max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))% GAME_WIDTH
             v_plusloin = Vector2D(x_plus, y_plus)
         else : 
-            y_plus = adv_position.y + max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) 
-            x_plus = adv_position.x -  max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs( adv_position.x ))
+            y_plus = abs(adv_position.y + max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) % GAME_HEIGHT)
+            x_plus = adv_position.x -  max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs( adv_position.x ))% GAME_WIDTH
             
             v_plusloin = Vector2D(x_plus, y_plus)
             
@@ -67,12 +67,12 @@ class Defense(Strategy):
         adv_position = state.player_state(id_team_adv(id_team),id_player).position
         
         if(id_team_adv(id_team) == 2):
-            y_plus = adv_position.y + max(abs(GAME_HEIGHT - adv_position.y  ), abs( adv_position.y ) )
-            x_plus =  adv_position.x + max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))
+            y_plus = adv_position.y + max(abs(GAME_HEIGHT - adv_position.y  ), abs( adv_position.y ) ) % GAME_HEIGHT
+            x_plus =  adv_position.x + max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))% GAME_WIDTH
             v_plusloin = Vector2D(x_plus, y_plus)
         else : 
-            y_plus = adv_position.y + max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) 
-            x_plus = adv_position.x -  max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs( adv_position.x ))
+            y_plus = adv_position.y + max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) % GAME_HEIGHT
+            x_plus = adv_position.x -  max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs( adv_position.x ))% GAME_WIDTH
             
             v_plusloin = Vector2D(x_plus, y_plus)
             
