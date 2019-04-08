@@ -5,6 +5,10 @@ question 2:
 La strategie attaque doit lancer le ballon le plus loin possible de l'adversaire.
 Avec la position de l'adversaire, on calcule les coordonnés du point le plus élogné de celui ci tout en restant dans sa portion du terrain : c'est le maximum entre la difference de son abscice avec le mur droit ou le mur gauche, et le maximum entre la diffrence de son ordonné avec le mur du haut et le mur du bas
 
+autre implementation : calculer le maximumX(distance(JoueurAdv.x,BordGauche),distance(JoueurAdv.x,BordDroit) ; maximumY(distance(JoueurAdv.y,BordHaut),distance(JoueurAdv.y,BordBas)
+cible = (JoueurAdv.x  + maximumX, JoueurAdv.y  + maximumY)
+
+
 question 3:
 La strategie de defense anticipe l'action d'attaque se deplacant dans le terrain uniformement 
 

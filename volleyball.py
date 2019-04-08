@@ -43,7 +43,7 @@ class Attaque(Strategy):
         adv_position = state.player_state(id_team_adv(id_team),id_player).position
         
         if(id_team_adv(id_team) == 2):
-            y_plus = abs(adv_position.y + max(abs(GAME_HEIGHT - adv_position.y  ), abs( adv_position.y ) )% GAME_HEIGHT)
+            y_plus = (adv_position.y + max(abs(GAME_HEIGHT - adv_position.y  ), abs( adv_position.y ) )% GAME_HEIGHT) 
             x_plus =  adv_position.x + max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))% GAME_WIDTH
             v_plusloin = Vector2D(x_plus, y_plus)
         else : 
@@ -59,7 +59,7 @@ class Attaque(Strategy):
             
 class Defense(Strategy):
     def __init__(self):
-        Strategy.__init__(self, "Attaque")
+        Strategy.__init__(self, "Defense")
 
     def compute_strategy(self, state, id_team, id_player):
         s = SuperState(state, id_team, id_player)
