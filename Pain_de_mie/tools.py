@@ -383,12 +383,11 @@ class Action(object):
                 return self.aller(Vector2D(GAME_QUARTER,GAME_HEIGHT/2))
             else:
                 return self.aller(Vector2D(GAME_THREE_QUARTER,GAME_HEIGHT/2))
-        
-                    
-                
             
-
-
+def egalite_float(a,b):
+    if(abs(a-b) < 0.0001):
+        return True
+    return False
     
    
 def Shooter(state, id_team, id_player, singleton):
@@ -419,6 +418,13 @@ def ami_proche_pos(state, id_team, id_player):
     liste_position = [state.player_state(it,ip).position for (it,ip) in L if ip != id_player]
     L_distance = [distance(state,id_team,id_player,joueur) for joueur in liste_position] #on recupère la position de chaque joeurs 
     return min(L_distance)
+
+def ami_proche(state, id_team, id_player):
+    L = liste_joueur(state, id_team) 
+    liste_position = [state.player_state(it,ip).position for (it,ip) in L if ip != id_player]
+    L_distance = [distance(state,id_team,id_player,joueur) for joueur in liste_position] #on recupère la position de chaque joeurs 
+    return [(it,ip) for (it,ip) in L if egalite_float(distance(state,id_team,id_player,state.player_state(it,ip).position),  min(L_distance)) == True and ip != id_player][0]
+
     #return allies
 def adv_proche_pos(state, id_team, id_player):
     L = liste_joueur(state, id_team_adv(id_team)) 
@@ -439,8 +445,9 @@ def distance(self, cible):
     return dist 
  
 
-def passe(self):
-    return SoccerAction(acceleration = Vector2D(), shoot = (self.plus_proche_ami()-self.player))
+def passe(self,state, id_team, id_player):
+    v = Vector2D(self.ami_proche() - self.player) 
+    return SoccerAction(acceleration = Vector2D(), angle = v.angle)
 
 def anticiper_ball(self):
     return self.posi_ball() + self.state.ball.vitesse.normalize()

@@ -62,12 +62,13 @@ class GardienStrategy(Strategy):
     def compute_strategy(self, state, id_team, id_player):
         
         s = SuperState(state, id_team, id_player)
-        dist = s.distance(s.ball)
+        dist = distance(state, id_team, id_player,s.ball)
         
         if(dist < 10):
             if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
                 return SoccerAction(shoot = s.goalAdv - s.player)
                 #return SoccerAction(shoot = allieProche(state, id_team, id_player))
+                return passe(self,state, id_team, id_player)
             else:
                 return SoccerAction(acceleration = s.ball - s.player)
         else:
@@ -191,6 +192,8 @@ class Strat_switch(Strategy):
     def compute_strategy(self, state, id_team, id_player):
        
         s = SuperState(state, id_team, id_player)
+     
+        
         if(joueur_proche_objet(state,id_team,id_player,state.ball.position))>30 and joueur_proche_objet(state,id_team_adv(id_team),id_player,s.goal)<10 and joueur_proche_objet(state,id_team,id_player,s.goal)<20:
            return self.compute_strategy_def( state, id_team, id_player)
         else:
@@ -202,11 +205,12 @@ team2 = SoccerTeam(name="Team 2")
 
 # Add players
 team2.add("kiwi",Strat_switch()) 
-team2.add("Fonceur", Defenseur()) 
+#team2.add("paille", Defenseur()) 
+team2.add("kiwi",GardienStrategy()) 
 team1.add("Defenseur", Defenseur())   
 team1.add("Attaquant", Attaquant4()) 
 team1.add("Fonceur", FonceurStrategy())  
-team1.add("strat",Strat_switch()) 
+#team1.add("strat",Strat_switch()) 
  
 
 # Create a match
