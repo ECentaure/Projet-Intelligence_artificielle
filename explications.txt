@@ -9,3 +9,4 @@ question 3:
 La strategie de defense anticipe l'action du mur droit en se deplacant dans le terrain uniformement 
 
 
+question 4: on réalise une strategie d'adaptation en fonction de la position du ballon dans le terrain : si celui ci est du coté adverse, on adopte une strategie de defense afin d'apprehender les attaques, sinon on adopte un strategie d'attaque

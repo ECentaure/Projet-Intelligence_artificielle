@@ -39,11 +39,16 @@ class Attaque(Strategy):
         dist = distance(state, id_team, id_player, s.ball)
         adv_position = state.player_state(id_team_adv(id_team),id_player).position
         
-        y_plus = max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) % GAME_HEIGHT
-        x_plus = max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))
-        v_plusloin = Vector2D(x_plus, y_plus)
-
-        
+        if(id_team_adv(id_team) == 2):
+            y_plus = adv_position.y + max(abs(GAME_HEIGHT - adv_position.y  ), abs( adv_position.y ) )
+            x_plus =  adv_position.x + max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))
+            v_plusloin = Vector2D(x_plus, y_plus)
+        else : 
+            y_plus = adv_position.y + max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) 
+            x_plus = adv_position.x -  max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs( adv_position.x ))
+            
+            v_plusloin = Vector2D(x_plus, y_plus)
+            
         if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
             return SoccerAction(shoot = v_plusloin - s.player)
         else:
@@ -70,8 +75,55 @@ class Defense(Strategy):
         else:
             return SoccerAction(acceleration = v_plusloin - s.player)
      
+class Strat_Switch(Strategy):
+    def __init__(self):
+        Strategy.__init__(self, "Switch")
+            
+    def compute_strategy_def(self, state, id_team, id_player):
+        s = SuperState(state, id_team, id_player)
+        dist = distance(state, id_team, id_player, s.ball)
+        adv_position = state.player_state(id_team_adv(id_team),id_player).position
+        
+        y_plus = max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) % GAME_HEIGHT
+        x_plus = max(abs(adv_position.x - (GAME_WIDTH/2 ) ), abs((GAME_WIDTH/2 ) - adv_position.x )) % GAME_WIDTH
+        v_plusloin = Vector2D(x_plus, y_plus)
 
-
+        
+        if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
+            return SoccerAction(shoot = v_plusloin - s.player)
+        elif(dist * pow(-1, id_team) > GAME_HEIGHT/2 * pow(-1, id_team)):  
+            return SoccerAction(acceleration = s.ball - s.player)
+        else:
+            return SoccerAction(acceleration = v_plusloin - s.player)
+    def compute_strategy_attack(self, state, id_team, id_player):
+        s = SuperState(state, id_team, id_player)
+        dist = distance(state, id_team, id_player, s.ball)
+        adv_position = state.player_state(id_team_adv(id_team),id_player).position
+        en_fonction_de_team = pow(-1,id_team)
+        if(id_team_adv(id_team) == 2):
+            y_plus = max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) 
+            x_plus = max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))
+            v_plusloin = Vector2D(x_plus, y_plus)
+        else : 
+            y_plus = max(abs(adv_position.y - GAME_HEIGHT ), abs(GAME_HEIGHT - adv_position.y )) 
+            x_plus = max(abs((GAME_WIDTH/2 ) - adv_position.x ), abs((GAME_WIDTH ) - adv_position.x ))
+            v_plusloin = Vector2D(x_plus, y_plus)
+            
+        if( dist < settings.PLAYER_RADIUS + settings.BALL_RADIUS): 
+            return SoccerAction(shoot = v_plusloin - s.player)
+        else:
+            return SoccerAction(acceleration = s.ball - s.player)
+        
+    def compute_strategy(self, state, id_team, id_player):
+       
+        s = SuperState(state, id_team, id_player)
+    
+        
+        if (balle_dans_mon_camp == True):
+           return self.compute_strategy_def( state, id_team, id_player)
+        else:
+           return self.compute_strategy_attack( state, id_team, id_player)
+        
        
 class RandomStrategy(Strategy):
     def __init__(self):
@@ -81,13 +133,24 @@ class RandomStrategy(Strategy):
         return SoccerAction(acceleration=Vector2D.create_random(-1, 1),
                             shoot=Vector2D.create_random(-1, 1))
 
+
+def balle_dans_mon_camp(id_team):
+    s = SuperState(state, id_team, id_player)
+    if (id_team == 1):
+        if(s.ball.x < (GAME_WIDTH/2)):
+            return True
+        return False
+    if (id_team == 2):
+        if(s.ball.x > (GAME_WIDTH/2)):
+            return True
+        return False
 # Create teams
 team1 = SoccerTeam(name="Team 1")
 team2 = SoccerTeam(name="Team 2")
 
 # Add players
 team1.add("Player 1", Attaque())  # Random strategy
-team2.add("Player 2", Defense())   # Random strategy
+team2.add("Player 2", Attaque())   # Random strategy
 
 # Create a match
 simu = VolleySimulation(team1, team2)
