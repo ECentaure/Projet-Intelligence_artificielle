@@ -12,5 +12,5 @@ def get_team(nb_players ):
         team.add(" Pomme " , Defenseur())
         team.add(" Orange " ,Attaquant4())
         team.add(" Banane " , Defenseur2())
-        team.add("Kiwi",FonceurStrategy())
+        team.add("Kiwi",Campeur())
     return team
