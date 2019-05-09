@@ -97,7 +97,7 @@ class DefenseSearch ( object ):
         return self.res
     
     def get_best(self):
-        return min(self.res, key=self.res.get)
+        return max(self.res, key=self.res.get)
     
     
     
