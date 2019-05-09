@@ -12,28 +12,18 @@ GRADED_RETAIN_PERCENT = 0.5
 CHANCE_RETAIN_NONGRATED = 0.05
 POPULATION_COUNT = 100
 GRADED_INDIVIDUAL_RETAIN_COUNT = int(POPULATION_COUNT * GRADED_RETAIN_PERCENT)
-NB_GENERATIONS = 10
-NB_KEEP = 6
-COEFF_MUT = 0.01
-
-
-
-
-
-def get_random_population_list(a,b):
-    L = []
-    for i in range(0,100):
-        L.append({"power":(random()*(b-a)+a)})
-    return L
-
-
+NB_KEEP = 26
+COEFF_MUT = random()*0.1
 
 
 
 
 class GoalSearch ( object ):
-    def __init__ ( self,strategy,params,simu = None,trials =20,max_steps =1000000,max_round_step=40):
+    def __init__ ( self,strategy,defense, ballx,bally,params,simu = None,trials =20,max_steps =1000000,max_round_step=100):
         self.strategy = strategy
+        self.defense = defense
+        self.ballx = ballx
+        self.bally = bally
         self.params = params.copy()
         self.simu = simu
         self.trials = trials
@@ -45,7 +35,7 @@ class GoalSearch ( object ):
             team1 = SoccerTeam( " Team ␣ 1 " )
             team2 = SoccerTeam( " Team ␣ 2 " )
             team1.add (self.strategy.name,self.strategy )
-            team2.add (Strategy().name ,Strategy())
+            team2.add (self.defense.name ,self.defense)
             self.simu = Simulation(team1,team2 ,max_steps = self.max_steps )
         self.simu.listeners += self
         
@@ -60,17 +50,16 @@ class GoalSearch ( object ):
         self.cpt_trials = 0 # Counter for trials
         self.param_grid= iter(self.params)# a modifier avec les chromosomes (non fonctionnelle) 
         self.cur_param = next(self.param_grid,None)
-        #print("test" + str((self.cur_param)))# Current parameter
         if self.cur_param is None:
             raise ValueError( 'no ␣parameter ␣given')
         self.res=dict() # Dictionary of results
     
     def begin_round ( self , team1 , team2 , state ):
         ball = Vector2D.create_random(low =0,high =1)
-        ball.x = 105
-        ball.y =random()*90 
-        self.simu.state.states [(1,0)].position = ball.copy() # Player position
-        self.simu.state.states [(1,0)].vitesse = Vector2D() # Player accelerati
+        ball.x = random()*(GAME_WIDTH-GAME_WIDTH/2+1)+GAME_WIDTH/2
+        ball.y = random()*(GAME_HEIGHT-GAME_HEIGHT/2+1)+GAME_HEIGHT/2
+        self.simu.state.states [(1,0)].position = ball.copy()
+        self.simu.state.states [(1,0)].vitesse = Vector2D()# Player position # Player acceleration
         self.simu.state.ball.position = ball.copy() # Ball position
         self.last_step = self.simu.step
 # Last step of the game
@@ -85,24 +74,17 @@ class GoalSearch ( object ):
         if state.goal > 0:
             self.criterion += 1 
         self.cpt_trials += 1
-        print(self.cur_param,end = "␣␣␣␣") 
-        print( "Crit:␣{}␣␣␣Cpt:␣{} ".format(self.criterion,self.cpt_trials))
+        print(self.cur_param,end = "____") 
+        print( "Crit:_{}___Cpt:_{} ".format(self.criterion,self.cpt_trials))
         if self.cpt_trials >= self.trials :
             self.res[tuple(self.cur_param.items())]= self.criterion*1./self.trials
-    # Reset parameters
+            # Reset parameters
             self.criterion = 0
             self.cpt_trials = 0
             # Next parameter value
             self.cur_param = next(self.param_grid,None )
             if self.cur_param is None:
                  self.simu.end_match()
-                #"""int j = 0
-                #while j< NB_GENERATIONS:
-                 #   self.selection()
-                  #  G2= self.reproduction()
-                   #  L = []
-                    # for i in range(0, len(G2)):
-                     #    L.append({"power":G2[i]})"""
                     
            
 
@@ -134,11 +116,17 @@ class GoalSearch ( object ):
             for j in range (len(L)//2, len(L)):
                 n = random()
                 if(random() < CHANCE_TO_MUTATE):
-                    GEN2.append(((L[i]+ L[j])/2) + COEFF_MUT)
-                    GEN2.append( ((n*L[i]+ (1-n)*L[j])/2) + COEFF_MUT)
+                    if(random() < 0.5):
+                        GEN2.append(L[i]+ COEFF_MUT)
+                    else:
+                        GEN2.append(L[j]+ COEFF_MUT)
+                    GEN2.append((n*L[i]+ (1-n)*L[j]) + COEFF_MUT)
                 else:
-                    GEN2.append((L[i]+ L[j])/2)
-                    GEN2.append( (n*L[i]+ (1-n)*L[j])/2 )
+                    if(random() < 0.5):
+                        GEN2.append(L[i])
+                    else:
+                        GEN2.append(L[j])
+                    GEN2.append( n*L[i]+ (1-n)*L[j] ) # Moyenne pondérée
         return GEN2
     
     def enjambement(self):
