@@ -71,9 +71,7 @@ class DefenseSearch ( object ):
 
     def end_round (self,team1,team2,state):
     # A round ends when there is a goal of if max step is achieved
-        if state.score_team1 >= state.score_team2:
-            self.criterion += 1 # Increment criterion
-        elif state.score_team2 > state.score_team1:
+        if state.goal > 0:
             self.criterion -= 1 
         self.cpt_trials += 1
         print(self.cur_param,end = "____") 
@@ -99,7 +97,7 @@ class DefenseSearch ( object ):
         return self.res
     
     def get_best(self):
-        return max(self.res, key=self.res.get)
+        return min(self.res, key=self.res.get)
     
     
     
